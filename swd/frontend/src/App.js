@@ -54,34 +54,14 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  componentDidCatch(error, info) {
-    // Display fallback UI
-    this.setState({ hasError: true });
-    // You can also log the error to an error reporting service
-    // logErrorToMyService(error, info);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return <h1>Something went wrong.</h1>;
-    }
-    return this.props.children;
-  }
-}
-
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      //Check if we're already logged in when starting the app.
+      // However this is an offline method
       loggedIn: localStorage.getItem('token') ? true : false , 
-      //Check if we're already logged in when starting the app
+
       latestNews: [
         {
           title: "Winner of Aditya Birla Group scholarship 2017",
@@ -97,14 +77,9 @@ class App extends React.Component {
 
   }
 
-  static childContextTypes = {
-    loggedIn: PropTypes.bool
+  getChildContext() {
+    return {loggedIn: this.state.loggedIn}
   }
-
-
-  getChildContext = () => ({
-    loggedIn: this.state.loggedIn
-  })
 
   login = () => {
     this.setState({ loggedIn: true})
@@ -118,10 +93,10 @@ class App extends React.Component {
 
     return (
       // apollo interfacing
-
       <ApolloProvider client={client}>
         <Router>
           <Switch>
+            {/* // Might need to add routing behaviour to take care of expired sessions */}
             <Route
               path="/aboutSWD"
               render={() => (
@@ -143,6 +118,10 @@ class App extends React.Component {
       </ApolloProvider>
     );
   }
+}
+
+App.childContextTypes = {
+  loggedIn: PropTypes.bool
 }
 
 export default App;
